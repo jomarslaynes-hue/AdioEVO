@@ -5,20 +5,21 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
-import com.adioevo.ui.MainScreen
+import com.adioevo.midi.CompleteMidiSystem
+import com.adioevo.ui.MainScreenComplete
 import com.adioevo.viewmodel.ProjectViewModel
 import timber.log.Timber
 
 class MainActivity : ComponentActivity() {
 
     private lateinit var projectViewModel: ProjectViewModel
+    private lateinit var midiSystem: CompleteMidiSystem
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +32,10 @@ class MainActivity : ComponentActivity() {
         Timber.d("MainActivity created")
 
         projectViewModel = ViewModelProvider(this).get(ProjectViewModel::class.java)
+        midiSystem = CompleteMidiSystem(this)
+
+        // Auto-create a new project for testing
+        projectViewModel.createNewProject("New Project")
 
         setContent {
             AdioEVOTheme {
@@ -38,7 +43,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = Color(0xFF121212)
                 ) {
-                    MainScreen(projectViewModel)
+                    MainScreenComplete(projectViewModel, midiSystem)
                 }
             }
         }
@@ -46,6 +51,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        midiSystem.shutdown()
         Timber.d("MainActivity destroyed")
     }
 }

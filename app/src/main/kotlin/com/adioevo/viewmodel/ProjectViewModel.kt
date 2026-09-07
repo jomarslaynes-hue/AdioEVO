@@ -3,10 +3,15 @@ package com.adioevo.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.adioevo.audio.AudioEngine
 import com.adioevo.data.db.AppDatabase
 import com.adioevo.data.model.Project
 import com.adioevo.data.repository.ProjectRepository
 import com.adioevo.midi.MidiEngine
+import com.adioevo.performance.PerformanceOptimizer
+import com.adioevo.project.ProjectManager
+import com.adioevo.timeline.TimelineManager
+import com.adioevo.timeline.TrackManager
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -15,7 +20,13 @@ class ProjectViewModel(application: Application) : AndroidViewModel(application)
 
     private val database = AppDatabase.getDatabase(application)
     private val projectRepository = ProjectRepository(database)
+    private val projectManager = ProjectManager(application)
+    private val performanceOptimizer = PerformanceOptimizer(application)
+
     private val midiEngine = MidiEngine(application)
+    private val audioEngine = AudioEngine(application)
+    private val timelineManager = TimelineManager()
+    private val trackManager = TrackManager()
 
     private val _currentProject = MutableStateFlow<Project?>(null)
     val currentProject: StateFlow<Project?> = _currentProject.asStateFlow()
@@ -36,9 +47,19 @@ class ProjectViewModel(application: Application) : AndroidViewModel(application)
     private val _bpm = MutableStateFlow(120f)
     val bpm: StateFlow<Float> = _bpm.asStateFlow()
 
+    private val _systemInfo = MutableStateFlow("")
+    val systemInfo: StateFlow<String> = _systemInfo.asStateFlow()
+
     val midiInputDevices = midiEngine.midiInputDevices
     val midiActivityStatus = midiEngine.midiActivityStatus
     val sustainPedalStatus = midiEngine.sustainPedalStatus
+
+    init {
+        Timber.d("ProjectViewModel initialized")
+        performanceOptimizer.optimizeForLowLatency()
+        _systemInfo.value = performanceOptimizer.getPerformanceReport()
+        Timber.d(_systemInfo.value)
+    }
 
     fun createNewProject(name: String) {
         viewModelScope.launch {
@@ -91,28 +112,34 @@ class ProjectViewModel(application: Application) : AndroidViewModel(application)
 
     fun play() {
         _isPlaying.value = true
+        audioEngine.startPlayback()
         Timber.d("Play")
     }
 
     fun pause() {
         _isPlaying.value = false
+        audioEngine.stopPlayback()
         Timber.d("Pause")
     }
 
     fun stop() {
         _isPlaying.value = false
         _isRecording.value = false
+        audioEngine.stopPlayback()
+        audioEngine.stopRecording()
         midiEngine.allNotesOff()
         Timber.d("Stop")
     }
 
     fun startRecording() {
         _isRecording.value = true
+        audioEngine.startRecording()
         Timber.d("Start recording")
     }
 
     fun stopRecording() {
         _isRecording.value = false
+        audioEngine.stopRecording()
         Timber.d("Stop recording")
     }
 
@@ -122,6 +149,8 @@ class ProjectViewModel(application: Application) : AndroidViewModel(application)
 
     override fun onCleared() {
         super.onCleared()
+        stop()
+        audioEngine.release()
         midiEngine.allNotesOff()
         Timber.d("ProjectViewModel cleared")
     }
