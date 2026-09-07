@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AdioEVO</string>
+    <string name="play">Play</string>
+    <string name="stop">Stop</string>
+    <string name="pause">Pause</string>
+    <string name="record">Record</string>
+    <string name="mute">Mute</string>
+    <string name="solo">Solo</string>
+    <string name="arm">Arm</string>
+    <string name="volume">Volume</string>
+    <string name="pan">Pan</string>
+    <string name="bpm">BPM</string>
+    <string name="time_signature">Time Signature</string>
+    <string name="project">Project</string>
+    <string name="settings">Settings</string>
+    <string name="midi_keyboard">MIDI Keyboard</string>
+    <string name="mixer">Mixer</string>
+    <string name="editor">Editor</string>
+    <string name="new_project">New Project</string>
+    <string name="save_project">Save Project</string>
+    <string name="open_project">Open Project</string>
+    <string name="sustain">Sustain</string>
+</resources>

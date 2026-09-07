@@ -1,0 +1,41 @@
+# Gradle
+.gradle/
+build/
+*.apk
+*.aar
+*.ap_
+*.aab
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Android
+.android/
+local.properties
+
+# Kotlin
+kotlin-build/
+out/
+
+# Database
+*.db
+*.sqlite
+
+# Audio/Media
+*.wav
+*.mp3
+*.aac
+*.flac
+
+# Misc
+*.log
+.gradle/
+project.properties
